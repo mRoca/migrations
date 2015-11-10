@@ -19,8 +19,6 @@
 
 namespace Doctrine\DBAL\Migrations;
 
-use Doctrine\DBAL\Schema\Schema;
-
 /**
  * Abstract class for individual migrations to extend from.
  *
@@ -29,25 +27,25 @@ use Doctrine\DBAL\Schema\Schema;
  * @since       2.0
  * @author      Jonathan H. Wage <jonwage@gmail.com>
  */
-abstract class AbstractMigration extends AbstractBaseMigration
+abstract class AbstractSchemaIndependantMigration extends AbstractBaseMigration
 {
-    public function preUp(Schema $schema)
+    public function preUp()
     {
     }
 
-    public function postUp(Schema $schema)
+    public function postUp()
     {
     }
 
-    public function preDown(Schema $schema)
+    public function preDown()
     {
     }
 
-    public function postDown(Schema $schema)
+    public function postDown()
     {
     }
 
-    abstract public function up(Schema $schema);
+    abstract public function up();
 
-    abstract public function down(Schema $schema);
+    abstract public function down();
 }

@@ -239,6 +239,8 @@ class Version
     {
         $this->sql = [];
 
+        $useSchema = ! $this->migration instanceof AbstractSchemaIndependantMigration;
+
         $transaction = $this->migration->isTransactional();
         if ($transaction) {
             //only start transaction if in transactional mode
@@ -249,7 +251,11 @@ class Version
             $migrationStart = microtime(true);
 
             $this->state = self::STATE_PRE;
-            $fromSchema = $this->sm->createSchema();
+
+            $fromSchema = $toSchema = null;
+            if($useSchema) {
+                $fromSchema = $this->sm->createSchema();
+            }
             $this->migration->{'pre' . ucfirst($direction)}($fromSchema);
 
             if ($direction === self::DIRECTION_UP) {
@@ -260,9 +266,13 @@ class Version
 
             $this->state = self::STATE_EXEC;
 
-            $toSchema = clone $fromSchema;
-            $this->migration->$direction($toSchema);
-            $this->addSql($fromSchema->getMigrateToSql($toSchema, $this->platform));
+            if ($useSchema) {
+                $toSchema = clone $fromSchema;
+                $this->migration->$direction($toSchema);
+                $this->addSql($fromSchema->getMigrateToSql($toSchema, $this->platform));
+            } else {
+                $this->migration->$direction();
+            }
 
             $this->executeRegisteredSql($dryRun, $timeAllQueries);
 
